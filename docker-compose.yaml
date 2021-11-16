@@ -1,0 +1,87 @@
+
+version: '3.7'
+
+services:
+  traefik:
+    image: "traefik:v2.4"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - toc
+
+  keycloak:
+    depends_on:
+      - db
+    image: jboss/keycloak:13.0.0
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: db
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    networks:
+      - toc
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
+      - "traefik.http.routers.keycloak.entrypoints=web"
+
+  db:
+    image: postgres
+    volumes:
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - toc
+
+  adminer:
+    image: adminer
+    networks:
+      - toc
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.localhost`)"
+      - "traefik.http.routers.adminer.entrypoints=web"
+
+  board:
+    build:
+      context: ./services/board
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: ecto://postgres:postgres@db/toc
+        SECRET_KEY_BASE: TipgDWIMHqBRMLgYPNlv8FH2r6wo3AUBYKP1BrmXjgBKKPQ4jMWa/dAFgL8Gq/8pcKePLkJqBL5TEr+oBwUkqw==
+    depends_on:
+      - db
+    ports:
+      - 4000:4000
+    environment:
+      - DATABASE_URL=ecto://postgres:postgres@db/toc
+      - SECRET_KEY_BASE=TipgDWIMHqBRMLgYPNlv8FH2r6wo3AUBYKP1BrmXjgBKKPQ4jMWa/dAFgL8Gq/8pcKePLkJqBL5TEr+oBwUkqw==
+    networks:
+      - toc
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.board.loadbalancer.server.port=4000"
+      - "traefik.http.routers.board.rule=Host(`board.localhost`)"
+      - "traefik.http.routers.board.entrypoints=web"
+    
+
+networks:
+  toc:

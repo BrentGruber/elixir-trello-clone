@@ -14,7 +14,7 @@ defmodule Ello.Board do
   @doc false
   def changeset(board, attrs) do
     board
-    |> cast(attrs, [:img_url, :title])
-    |> validate_required([:img_url, :title])
+    |> cast(attrs, [:title, :img_url])
+    |> validate_required([:title])
   end
 end

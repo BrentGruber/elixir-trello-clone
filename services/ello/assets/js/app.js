@@ -1,11 +1,12 @@
 import css from '../css/app.css'
-import '../css/phoenix.css'
 import 'phoenix_html'
 import { LiveSocket } from 'phoenix_live_view'
 import { Socket } from 'phoenix'
 import Sortable from 'sortablejs'
 
 let Hooks = {}
+
+
 
 Hooks.Lists = {
   mounted() {
@@ -89,5 +90,6 @@ Hooks.CardTitle = {
   },
 }
 
-let liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks })
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+let liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: {_csrf_token: csrfToken} })
 liveSocket.connect()

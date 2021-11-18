@@ -15,7 +15,7 @@ defmodule Ello.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:position, :title])
-    |> validate_required([:position, :title])
+    |> cast(attrs, [:title, :position, :board_id])
+    |> validate_required([:title])
   end
 end

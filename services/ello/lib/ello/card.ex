@@ -14,7 +14,7 @@ defmodule Ello.Card do
   @doc false
   def changeset(card, attrs) do
     card
-    |> cast(attrs, [:description, :title, :position])
-    |> validate_required([:description, :title, :position])
+    |> cast(attrs, [:title, :description, :list_id, :position])
+    |> validate_required([:title, :list_id])
   end
 end

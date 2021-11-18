@@ -100,7 +100,7 @@ USER nobody
 RUN set -eux; \
   ln -nfs /app/$(basename *)/bin/$(basename *) /app/entry
 
-CMD /app/entry start
+CMD /app/entry eval "Ello.Release.migrate" && /app/entry start
 
 # FROM hexpm/elixir:1.12.3-erlang-24.1.4-debian-bullseye-20210902-slim
 

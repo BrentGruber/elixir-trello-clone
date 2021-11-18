@@ -60,9 +60,9 @@ services:
       - "traefik.http.routers.adminer.rule=Host(`adminer.localhost`)"
       - "traefik.http.routers.adminer.entrypoints=web"
 
-  board:
+  ello:
     build:
-      context: ./services/board
+      context: ./services/ello
       dockerfile: Dockerfile
       args:
         DATABASE_URL: ecto://postgres:postgres@db/toc
